@@ -3,11 +3,30 @@ from consts import *
 
 # Check collision with level walls, use proposed_player to check for collision and update player position if it is valid
 # disallow_clipping is a flag to avoid clipping through the wall, it does so by checking if the player is at least 1 block away from surrounding walls
-def check_level_collision(player, proposed_x, proposed_y, level):
+def check_level_collision(player, proposed_x, proposed_y, level, player_body_buffer = 5):
+
+    # Add the player body size buffer (radius) to the proposed position
+    # this way the play body does not clip through the walls
+    
+    proposed_x_buffer = player.x
+    proposed_y_buffer = player.y
+    
+    if (proposed_x > player.x):
+        proposed_x_buffer = player.x + player_body_buffer
+        
+    if (proposed_x < player.x):
+        proposed_x_buffer = player.x - player_body_buffer
+        
+    if (proposed_y > player.y):
+        proposed_y_buffer = player.y + player_body_buffer
+    
+    if (proposed_y < player.y):
+        proposed_y_buffer = player.y - player_body_buffer
+        
 
     # Proposed new grid location
-    grid_x = int(proposed_x / BLOCK_SIZE)
-    grid_y = int(proposed_y / BLOCK_SIZE)
+    grid_x = int(proposed_x_buffer / BLOCK_SIZE)
+    grid_y = int(proposed_y_buffer / BLOCK_SIZE)
      
     # # Wall clipping agrressivecheck, disabled by default (keep 1 grid distance from walls)
     # if disallow_clipping:
