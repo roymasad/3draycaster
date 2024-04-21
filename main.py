@@ -25,7 +25,7 @@ def main():
     
     size = (SCREEN_WIDTH, SCREEN_HEIGHT)
     
-    screen = pygame.display.set_mode(size)
+    screen = pygame.display.set_mode(size , vsync=True)
 
     # Set the title of the window
     pygame.display.set_caption("Wolfy Style DDA Raycasting 3D Demo")
@@ -70,6 +70,7 @@ def main():
     delta_time = 0
     current_time = 0
     previous_time = time.time()
+
     
     #  Game Loop
     while running:
@@ -84,20 +85,29 @@ def main():
         # Check for user input events
         # Game control keys (quit, view mode, etc.)
         for event in pygame.event.get():
+            
             if event.type == pygame.QUIT:
                 running = False
+            
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and view_mode == 'top':  # Left mouse button clicked
                     mouse_pos = pygame.mouse.get_pos()
                     clicked_grid_x = int((mouse_pos[0] - MINIMAP_OFFSET_X) // (BLOCK_SIZE * MINIMAP_SCALE_FACTOR))
                     clicked_grid_y = int((mouse_pos[1] - MINIMAP_OFFSET_Y)  // (BLOCK_SIZE * MINIMAP_SCALE_FACTOR))
                     level[clicked_grid_y][clicked_grid_x] = 5
+            
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3 and view_mode == 'top':  # Left mouse button clicked
                     mouse_pos = pygame.mouse.get_pos()
                     clicked_grid_x = int((mouse_pos[0] - MINIMAP_OFFSET_X) // (BLOCK_SIZE * MINIMAP_SCALE_FACTOR))
                     clicked_grid_y = int((mouse_pos[1] - MINIMAP_OFFSET_Y)  // (BLOCK_SIZE * MINIMAP_SCALE_FACTOR))
                     if clicked_grid_x > 0 and clicked_grid_x < MAP_SIZE_X-1 and clicked_grid_y > 0 and clicked_grid_y < MAP_SIZE_Y-1:
                         level[clicked_grid_y][clicked_grid_x] = 0
+            
             if event.type == pygame.KEYDOWN:
+                
+                if event.key == pygame.K_q:
+                    running = False
+                    quit()
+                    
                 if event.key == pygame.K_TAB:
                     view_mode = '3d' if view_mode == 'top' else 'top'
                     # Console log the change
@@ -120,6 +130,19 @@ def main():
                     shared.DEBUG_LEVEL = 2
                 if event.key == pygame.K_3:
                     shared.DEBUG_LEVEL = 3
+            
+            if event.type == pygame.MOUSEMOTION and view_mode == '3d' and not shared.paused:
+                # Get the relative movement of the mouse
+                rel_x, rel_y = event.rel
+                
+                # Check if the mouse is moving left or right
+                if rel_x < 0:
+                    # Mouse is moving left
+                    player.view_angle -= player.rotation_speed * delta_time * MOUSE_SENSITIVITY
+                elif rel_x > 0:
+                    # Mouse is moving right
+                    player.view_angle += player.rotation_speed * delta_time * MOUSE_SENSITIVITY
+                
         
         # Movement keys support multiple keys at once and diagonal movement with pressing and holding
         if not shared.paused:
@@ -157,6 +180,11 @@ def main():
             # Raycasting Mode Drawing
             
             if view_mode == '3d':
+                
+                # Grab the mouse cursor
+                pygame.mouse.set_visible(False)
+                pygame.event.set_grab(True)
+                
                 # Screen clear
                 screen.fill(BLACK)
                 
@@ -238,6 +266,11 @@ def main():
 
             # Top view map mode Drawing
             if view_mode == 'top':
+                
+                # Release the mouse cursor
+                pygame.mouse.set_visible(True)
+                pygame.event.set_grab(False)
+    
                 # Screen clear
                 screen.fill(BLACK)
                 
@@ -323,7 +356,7 @@ def main():
             instructions_text = font_22.render("SPC: Toogle V/H Scan", True, WHITE)
             screen.blit(instructions_text, (660, 80))
             
-            instructions_text = font_22.render("LEFT/RIGHT: Rotate", True, WHITE)
+            instructions_text = font_22.render("Mouse, A/D : Rotate", True, WHITE)
             screen.blit(instructions_text, (660, 110))
             
             instructions_text = font_22.render("UP/DOWN: Move", True, WHITE)
@@ -337,6 +370,9 @@ def main():
             
             instructions_text = font_22.render("Click map LR: Add/Rem", True, WHITE)
             screen.blit(instructions_text, (660, 230))
+            
+            instructions_text = font_22.render("Q: Quit", True, WHITE)
+            screen.blit(instructions_text, (660, 260))
                         
             # Flip frame buffer to draw screen 
             pygame.display.flip()

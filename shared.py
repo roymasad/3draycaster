@@ -10,7 +10,7 @@ scanmode = "shortest"
 paused = False
 
 # 0 none, 1 minimal, 2 moderate, 3 maximum
-DEBUG_LEVEL = 1
+DEBUG_LEVEL = 0
 
 # Lookup table for wall colors and textures used for rendering map grid walls
 wall_colors_textures_list = {
