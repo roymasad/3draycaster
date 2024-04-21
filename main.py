@@ -58,6 +58,14 @@ def main():
     wall_texture_blue = pygame.image.load('assets/textures/wall-blue.png').convert()
     wall_textire_blue_array = pygame.PixelArray(wall_texture_blue)
     shared.wall_colors_textures_list[BLUE_TEXTURE_WALL] = wall_textire_blue_array
+    
+    # Load a skybox texture
+    skybox_texture = pygame.image.load('assets/skyboxes/SNOSKY03.png').convert()
+    #resize the skybox texture
+    skybox_texture = pygame.transform.scale(skybox_texture, (skybox_texture.get_width(), SCREEN_HEIGHT/2))
+    #skybox_array = pygame.PixelArray(skybox_texture)
+    skybox_rect = skybox_texture.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/4))
+
 
     # Create a Font object
     font_30 = pygame.font.Font(None, 30)
@@ -93,7 +101,9 @@ def main():
                     mouse_pos = pygame.mouse.get_pos()
                     clicked_grid_x = int((mouse_pos[0] - MINIMAP_OFFSET_X) // (BLOCK_SIZE * MINIMAP_SCALE_FACTOR))
                     clicked_grid_y = int((mouse_pos[1] - MINIMAP_OFFSET_Y)  // (BLOCK_SIZE * MINIMAP_SCALE_FACTOR))
-                    level[clicked_grid_y][clicked_grid_x] = 5
+                    
+                    if clicked_grid_x > 0 and clicked_grid_x < MAP_SIZE_X-1 and clicked_grid_y > 0 and clicked_grid_y < MAP_SIZE_Y-1:
+                        level[clicked_grid_y][clicked_grid_x] = 5
             
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3 and view_mode == 'top':  # Left mouse button clicked
                     mouse_pos = pygame.mouse.get_pos()
@@ -166,7 +176,10 @@ def main():
             else:
                 player.speed = PLAYER_SPEED
 
-
+        if player.view_angle < 0:
+            player.view_angle = 2 * math.pi
+        if player.view_angle > 2 * math.pi:
+            player.view_angle = 0
                 
         # Gameplay logic, check if paused or not
         if not shared.paused:
@@ -189,9 +202,21 @@ def main():
                 screen.fill(BLACK)
                 
                 # Draw the sky and floor first
-                pygame.draw.rect(screen, SKY_BLUE, pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT / 2))
+                #pygame.draw.rect(screen, SKY_BLUE, pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT / 2))
                 pygame.draw.rect(screen, GROUND_GREY, pygame.Rect(0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2))
 
+                # Draw the skybox
+                # Scroll/clip it based on the player view angle
+                skybox_rect.left = 0 - (skybox_texture.get_width() * player.view_angle ) /  (math.pi*2 )
+                screen.blit(skybox_texture, skybox_rect)
+                
+                # Add the buffer looping image
+                # PS: the 2 skyboxes are reset to initial positions by the player's wrapping angle
+                skybox_rect.left = skybox_rect.left + skybox_texture.get_width()
+                screen.blit(skybox_texture, skybox_rect)
+                
+                
+                
                 
                 # For each vertical slice of the screen
                 for x in range(SCREEN_WIDTH):

@@ -31,10 +31,11 @@ Python retro basic 3d Wolfenstein textured walls raycaster using DDA to optimize
 * FPS/Raycast Steps UI counters
 * Different Inline map levels
 * Adjustable Field of View
+* Mouse movement
+* Skybox
 
 # TODO
 
-* Skybox
 * GUI with Score board
 * Pickup Sprites (health, ammo, score)
 * Weapons HUD, animation and raycasting attacks
@@ -43,3 +44,10 @@ Python retro basic 3d Wolfenstein textured walls raycaster using DDA to optimize
 * Save/Load levels to/from external files
 * Audio fx and background music
 * Network deathmatch using Firebase realtime DB
+
+# Asset Credits
+
+Skybox from mekworks 
+https://mekworx.the-powerhouse.net/meks-box-o-skies/
+
+Wall textures from original wolfenstein 3d
