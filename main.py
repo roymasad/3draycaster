@@ -24,8 +24,10 @@ def main():
     pygame.init()
     
     size = (SCREEN_WIDTH, SCREEN_HEIGHT)
+    # Surface optimizations, don't seem to be improving performance, keeping for verbosity
+    flags = pygame.HWSURFACE | pygame.DOUBLEBUF # | pygame.FULLSCREEN
     
-    screen = pygame.display.set_mode(size , vsync=True)
+    screen = pygame.display.set_mode(size , flags=flags, vsync=True)
 
     # Set the title of the window
     pygame.display.set_caption("Wolfy Style DDA Raycasting 3D Demo")
@@ -79,6 +81,8 @@ def main():
     current_time = 0
     previous_time = time.time()
 
+    # Create new Shotgun weapon
+    weapon = Shotgun()
     
     #  Game Loop
     while running:
@@ -90,10 +94,11 @@ def main():
         proposed_x = player.x
         proposed_y = player.y
         
-        # Check for user input events
+        # Check for user input events (and custom game events)
         # Game control keys (quit, view mode, etc.)
         for event in pygame.event.get():
             
+            # UI Events
             if event.type == pygame.QUIT:
                 running = False
             
@@ -111,6 +116,11 @@ def main():
                     clicked_grid_y = int((mouse_pos[1] - MINIMAP_OFFSET_Y)  // (BLOCK_SIZE * MINIMAP_SCALE_FACTOR))
                     if clicked_grid_x > 0 and clicked_grid_x < MAP_SIZE_X-1 and clicked_grid_y > 0 and clicked_grid_y < MAP_SIZE_Y-1:
                         level[clicked_grid_y][clicked_grid_x] = 0
+            
+            # weapon fired in 3d mode
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and view_mode == '3d':
+                weapon.fire()
+                
             
             if event.type == pygame.KEYDOWN:
                 
@@ -152,6 +162,16 @@ def main():
                 elif rel_x > 0:
                     # Mouse is moving right
                     player.view_angle += player.rotation_speed * delta_time * MOUSE_SENSITIVITY
+               
+            # Custom game events     
+            if event.type == DEFAULT_EVENT:
+                pass
+            
+            # if event.type == WEAPON_RELOAD_EVENT:
+            #     weapon.reload()
+            
+            # if event.type == WEAPON_READY_EVENT:
+            #     weapon.ready()
                 
         
         # Movement keys support multiple keys at once and diagonal movement with pressing and holding
@@ -160,10 +180,17 @@ def main():
             if keys[pygame.K_UP] or keys[pygame.K_w]: 
                 proposed_x += player.speed * math.cos(player.view_angle) * delta_time
                 proposed_y += player.speed * math.sin(player.view_angle) * delta_time
-                
+               
+                player = check_level_collision(player, proposed_x, player.y, level)
+                player = check_level_collision(player, player.x, proposed_y, level)
+                 
             if keys[pygame.K_DOWN] or keys[pygame.K_s]: 
                 proposed_x -= player.speed * math.cos(player.view_angle) * delta_time
                 proposed_y -= player.speed * math.sin(player.view_angle) * delta_time
+                
+                player = check_level_collision(player, proposed_x, player.y, level)
+                player = check_level_collision(player, player.x, proposed_y, level)
+
                 
             if keys[pygame.K_LEFT] or keys[pygame.K_a]:
                 player.view_angle -= player.rotation_speed * delta_time
@@ -184,12 +211,6 @@ def main():
         # Gameplay logic, check if paused or not
         if not shared.paused:
             
-            # check collision only if a key was pressed
-            if  any(keys):
-                
-                player = check_level_collision(player, proposed_x, player.y, level)
-                player = check_level_collision(player, player.x, proposed_y, level)
-        
             # Raycasting Mode Drawing
             
             if view_mode == '3d':
@@ -216,10 +237,9 @@ def main():
                 screen.blit(skybox_texture, skybox_rect)
                 
                 
-                
-                
                 # For each vertical slice of the screen
-                for x in range(SCREEN_WIDTH):
+                # render half the screen width interleaved => performance boost at neglightable visual loss
+                for x in range(0,SCREEN_WIDTH, 2):
                     # Calculate the ray angle per vertical slice of the POV
                     ray_angle = player.view_angle + math.atan((x - SCREEN_WIDTH / 2) / FOCAL_LENGTH)
 
@@ -259,7 +279,8 @@ def main():
                             wall_slice_surface.set_at((0, y), texture_color)
                                                 
                         # Scale the wall slice surface to the size of final the wall slice height
-                        wall_slice_surface = pygame.transform.scale(wall_slice_surface, (1, slice_height))
+                        # '2' is used as slice width here because the loop has a step of 2 (see above)
+                        wall_slice_surface = pygame.transform.scale(wall_slice_surface, (2, slice_height))
 
                         # Get the texture y slice location on the screen (centered)
                         tex_location_y = int(SCREEN_HEIGHT / 2 - slice_height / 2)
@@ -284,10 +305,14 @@ def main():
                         wall_color = (wall_color[0] * color_brightness_normalized, wall_color[1] * color_brightness_normalized, wall_color[2] * color_brightness_normalized)
 
                         # Draw the wall slice
-                        pygame.draw.rect(screen, wall_color, pygame.Rect(x, SCREEN_HEIGHT / 2 - slice_height / 2, 1, slice_height))
+                        pygame.draw.rect(screen, wall_color, pygame.Rect(x, SCREEN_HEIGHT / 2 - slice_height / 2, 2, slice_height))
                     
                     # Draw aiming reticle
                     pygame.draw.circle(screen, RED, (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), 3)
+                    
+                    # Draw selected weapon HUD
+                    weapon.update()
+                    weapon.draw(screen)
 
             # Top view map mode Drawing
             if view_mode == 'top':
@@ -360,6 +385,9 @@ def main():
                 pygame.draw.line(screen, LIGHT_GREY, (player.x * MINIMAP_SCALE_FACTOR + MINIMAP_OFFSET_X, player.y * MINIMAP_SCALE_FACTOR + MINIMAP_OFFSET_Y), (hit_x * MINIMAP_SCALE_FACTOR + MINIMAP_OFFSET_X, hit_y * MINIMAP_SCALE_FACTOR + MINIMAP_OFFSET_Y), 1)
 
             
+            # Update the display
+            
+            
             # Calculate the FPS
             fps = clock.get_fps()
 
@@ -384,7 +412,7 @@ def main():
             instructions_text = font_22.render("Mouse, A/D : Rotate", True, WHITE)
             screen.blit(instructions_text, (660, 110))
             
-            instructions_text = font_22.render("UP/DOWN: Move", True, WHITE)
+            instructions_text = font_22.render("W/S: Move", True, WHITE)
             screen.blit(instructions_text, (660, 140))
             
             instructions_text = font_22.render("0/1/2/3: Debug Logs", True, WHITE)

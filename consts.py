@@ -5,7 +5,7 @@ FPS = 60
 
 # Set the width and height of the screen [width, height]
 SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_HEIGHT = 550
 
 # Define the man size in x and y, set to 32 blocks by default
 MAP_SIZE_X = 32
@@ -27,6 +27,7 @@ PLAYER_SPEED = 70
 PLAYER_VIEW_ANGLE = math.pi /2 - 0.6
 PLAYER_ROTATION_SPEED = 2
 PLAYER_RUNNING_SPEED = 140
+PLAYER_HEALTH = 100
 
 PLAYER_INITIAL_X = 373
 PLAYER_INITIAL_Y = 229
@@ -67,3 +68,17 @@ GREY_TEXTURE_STONEWALL = 6
 MINIMAP_SCALE_FACTOR = 0.5
 MINIMAP_OFFSET_X = 144
 MINIMAP_OFFSET_Y = 44
+
+# CYAN, used instead of loading PNGs with alpha, this color is the default that is used with doom
+# Double important when using Pygame which is very slow blitting with alpha (pngs/surfaces)
+TRANSPARENT_COLOR_KEY = (0, 255, 255)
+
+# Animation frame delay in ms
+FRAME_DELAY = 150
+
+# EVENTS (ASYNC)
+DEFAULT_EVENT = -100
+CANCEL_EVENT = -1
+WEAPON_FIRE_EVENT = 0
+WEAPON_RELOAD_EVENT = 1
+WEAPON_READY_EVENT = 2

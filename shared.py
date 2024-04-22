@@ -1,6 +1,10 @@
 #shares between modules
 
+import pygame
+
 from consts import *
+
+clock = pygame.time.Clock()
 
 # Scan modes for raycasting # useful for debugging
 # shortest, horizontal, vertical

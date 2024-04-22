@@ -12,7 +12,7 @@ Python retro basic 3d Wolfenstein textured walls raycaster using DDA to optimize
 # Requirements
 
 * Python 3
-* Pygame
+* Pygame-ce (actually faster than pygame, still lacking tho in fps in blitting)
 * CPU faster than an intel 286 and more than 528k of conventional memory sadly ;(
 
 # Features
@@ -33,12 +33,16 @@ Python retro basic 3d Wolfenstein textured walls raycaster using DDA to optimize
 * Adjustable Field of View
 * Mouse movement
 * Skybox
+* Weapons HUD, animation
 
 # TODO
 
 * GUI with Score board
+* Textured Floor
+* Some floors with 'reflections'
+* Different ceiling heights?
 * Pickup Sprites (health, ammo, score)
-* Weapons HUD, animation and raycasting attacks
+* Weapons attack logic
 * RNG Animated enemy Sprites+State Machine+Navigation with different sprite angles
 * Add pickups/Enemy spawns to level editor
 * Save/Load levels to/from external files
@@ -51,3 +55,5 @@ Skybox from mekworks
 https://mekworx.the-powerhouse.net/meks-box-o-skies/
 
 Wall textures from original wolfenstein 3d
+
+Weapons and enemies from Brutal Doom pk3
