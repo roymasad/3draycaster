@@ -88,13 +88,33 @@ def main():
     pygame.mixer.music.load("assets/audio/music/E1M1.mp3") 
     
     # Set the volume 
-    pygame.mixer.music.set_volume(0.7) 
+    pygame.mixer.music.set_volume(0.1) 
     
     # Play the background music 
     pygame.mixer.music.play() 
 
     # Create new Shotgun weapon
     weapon = Shotgun()
+    
+    
+    # Create a shotgun npc
+    shotgun_guy1 = ShotgunGuy() 
+    
+    # add shotgun_guy1 to npcs, use default params
+    shared.npcs.append(shotgun_guy1)
+    
+    # Create a shotgun npc
+    shotgun_guy2 = ShotgunGuy(x=400, y=400, name="Shotgun Guy 2") 
+    
+    # add shotgun_guy1 to npcs
+    shared.npcs.append(shotgun_guy2)
+    
+    # Create a shotgun npc
+    #shotgun_guy3 = ShotgunGuy(x=700, y=750, name="Shotgun Guy 3") 
+    
+    # add shotgun_guy1 to npcs
+    #shared.npcs.append(shotgun_guy3)
+
     
     #  Game Loop
     while running:
@@ -255,7 +275,9 @@ def main():
                 
                 
                 # For each vertical slice of the screen
-                # render half the screen width interleaved => performance boost at neglightable visual loss
+                # NOTE rendering half the screen width resolution with step of 2
+                # interleaved => performance boost at neglightable visual loss
+                # This also affects the depth buffer calculation below
                 for x in range(0,SCREEN_WIDTH, 2):
                     # Calculate the ray angle per vertical slice of the POV
                     ray_angle = player.view_angle + math.atan((x - SCREEN_WIDTH / 2) / FOCAL_LENGTH)
@@ -314,6 +336,9 @@ def main():
                                                 
                         # Scale the wall slice surface to the size of final the wall slice height
                         # '2' is used as slice width here because the loop has a step of 2 (see above)
+                        # TODO BUG, in some situations we get error:
+                        # pygame.error: Size too large for scaling
+                        # maybe when walking backwards? i dont know how to recreate it, but it happens when u are close to a wall
                         wall_slice_surface = pygame.transform.scale(wall_slice_surface, (2, slice_height))
 
                         # Get the texture y slice location on the screen (centered)
@@ -321,6 +346,11 @@ def main():
 
                         # Blit the wall slice surface onto the screen
                         screen.blit(wall_slice_surface, (x, tex_location_y))
+                        
+                        # update 1d depth buffer to be used later by sprites in their rendering pass
+                        shared.depth_buffer_1d[x] = ray_distance
+                        # NOTE, ONLY used when raycast rendering with half width resolution
+                        shared.depth_buffer_1d[x+1] = ray_distance
                         
                             
                     else:
@@ -340,6 +370,10 @@ def main():
 
                         # Draw the wall slice
                         pygame.draw.rect(screen, wall_color, pygame.Rect(x, SCREEN_HEIGHT / 2 - slice_height / 2, 2, slice_height))
+                    
+                    
+                    # Render the sprites (items, enemies)
+                    render_sprites(screen, player)
                     
                     # Draw aiming reticle
                     pygame.draw.circle(screen, RED, (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), 3)
@@ -419,7 +453,7 @@ def main():
                 pygame.draw.line(screen, LIGHT_GREY, (player.x * MINIMAP_SCALE_FACTOR + MINIMAP_OFFSET_X, player.y * MINIMAP_SCALE_FACTOR + MINIMAP_OFFSET_Y), (hit_x * MINIMAP_SCALE_FACTOR + MINIMAP_OFFSET_X, hit_y * MINIMAP_SCALE_FACTOR + MINIMAP_OFFSET_Y), 1)
 
             
-            # Update the display
+            # Update the HUD display
             
             
             # Calculate the FPS
@@ -473,7 +507,18 @@ def main():
     # Close the window and quit.
     pygame.quit()
 
-
+def render_sprites(screen , player):
+    
+    #loop through npcs array and call the draw function
+    for npc in shared.npcs:
+        npc.update()
+        npc.draw(screen, player)
+        
+    for item in shared.items:
+        item.update()
+        item.draw(screen, player)
+    
+    
 
 # profiler = cProfile.Profile()
 # profiler.enable()

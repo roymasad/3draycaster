@@ -28,6 +28,11 @@ wall_colors_textures_list = {
 }
 
 
+# Create an array for items andnpcs
+
+items = []
+npcs = []
+
 # Initialize the audio mixer 
 pygame.mixer.init() 
     
@@ -36,3 +41,6 @@ weapon_channel = pygame.mixer.Channel(0)
 
 # Load shotgun sound
 shotgun_firing = pygame.mixer.Sound('assets/audio/fx/shotgun_firing.mp3')
+
+# 1d depth buffer
+depth_buffer_1d = [0] * SCREEN_WIDTH

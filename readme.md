@@ -6,6 +6,7 @@ Code: Roy Massaad
 
 Python retro basic 3d Wolfenstein textured walls raycaster using DDA to optimize/reduce ray casting steps.
 
+![](doc/screenshot0.png)
 ![](doc/screenshot1.png)
 ![](doc/screenshot2.png)
 
@@ -51,6 +52,8 @@ pip freeze > requirements.txt
 * Skybox
 * Weapons HUD, animation
 * Audio fx and background music
+* Basic animated sprites with state machine and wall occlusion
+* Using custom sprite/state system (draw, update, init, animation list..)
 
 # TODO
 
@@ -61,7 +64,7 @@ pip freeze > requirements.txt
 * Different ceiling/walls heights? (i know it was a BSP feature but maybe can be done in raycasting..)
 * Pickup Sprites (health, ammo, score)
 * Weapons attack logic
-* Animated enemy Sprites+State Machine+Navigation with different sprite angles
+* Better enemy Sprites, animation, state Machine, navigation with different sprite angles
 * Add pickups/Enemy spawns to level editor
 * Save/Load levels to/from external files
 * Network deathmatch using Firebase realtime DB

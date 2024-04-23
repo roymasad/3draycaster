@@ -76,6 +76,8 @@ TRANSPARENT_COLOR_KEY = (0, 255, 255)
 
 # Animation frame delay in ms
 FRAME_DELAY = 150
+# Shorter constant for when you want to update/draw faster
+FRAME_DELAY_SHORT = 100
 
 # EVENTS (ASYNC)
 DEFAULT_EVENT = -100
