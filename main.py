@@ -4,6 +4,7 @@ import pygame
 import cProfile
 import pstats
 import os
+from pygame import mixer 
 #import pygame.surfarray as surfarray
 #import numpy as np
 
@@ -40,7 +41,7 @@ def main():
     
     # Define the view mode
     # top, 3d
-    view_mode = 'top'
+    view_mode = '3d'
     
     
     # 32x32 grid representing the level
@@ -62,7 +63,9 @@ def main():
     shared.wall_colors_textures_list[BLUE_TEXTURE_WALL] = wall_textire_blue_array
     
     # Load a skybox texture
-    skybox_texture = pygame.image.load('assets/skyboxes/SNOSKY03.png').convert()
+    #skybox_texture = pygame.image.load('assets/skyboxes/SNOSKY03.png').convert()
+    skybox_texture = pygame.image.load('assets/skyboxes/HELLSKY9.png').convert()
+    
     #resize the skybox texture
     skybox_texture = pygame.transform.scale(skybox_texture, (skybox_texture.get_width(), SCREEN_HEIGHT/2))
     #skybox_array = pygame.PixelArray(skybox_texture)
@@ -80,6 +83,15 @@ def main():
     delta_time = 0
     current_time = 0
     previous_time = time.time()
+    
+    # Load the background music 
+    pygame.mixer.music.load("assets/audio/music/E1M1.mp3") 
+    
+    # Set the volume 
+    pygame.mixer.music.set_volume(0.7) 
+    
+    # Play the background music 
+    pygame.mixer.music.play() 
 
     # Create new Shotgun weapon
     weapon = Shotgun()
@@ -141,6 +153,11 @@ def main():
                         shared.scanmode = "shortest"
                 if event.key == pygame.K_ESCAPE:
                     shared.paused = not shared.paused
+                    if shared.paused:
+                        mixer.music.pause() 
+                    else:
+                        mixer.music.unpause()
+                        
                     if (shared.DEBUG_LEVEL >= 1): print ('Paused: ' + str(shared.paused))
                 if event.key == pygame.K_0:
                     shared.DEBUG_LEVEL = 0
@@ -224,7 +241,7 @@ def main():
                 
                 # Draw the sky and floor first
                 #pygame.draw.rect(screen, SKY_BLUE, pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT / 2))
-                pygame.draw.rect(screen, GROUND_GREY, pygame.Rect(0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2))
+                pygame.draw.rect(screen, DARK_GREY, pygame.Rect(0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2))
 
                 # Draw the skybox
                 # Scroll/clip it based on the player view angle
@@ -267,13 +284,30 @@ def main():
                         # Draw the wall slice with texture mapping from top to bottom on Y axis
                         # In the range of the Texture not to slice_height (then hardwarescaling it later to the slice_height)
                         # If you use slice_height, the y loop will take alot longer when the player moves close to the wall and will tank fps
+                        
+                        color_brightness = 255 - min(ray_distance/2, 255)
+                        color_brightness = max(color_brightness, 30)  # Adjust the minimum brightness of distant walls
+                        color_brightness_normalized = (color_brightness / 255)
+                        
                         for y in range(TEXTURE_SIZE):
                             
                             # Load the correct texture from the lookup table
                             if wall_color == GREY_TEXTURE_STONEWALL:
-                                texture_color =   shared.wall_colors_textures_list[GREY_TEXTURE_STONEWALL][texture_x, y]
+                                # Disabled, fully bright texture version
+                                #texture_color = shared.wall_colors_textures_list[GREY_TEXTURE_STONEWALL][texture_x, y]
+                                
+                                #PixelArray store colors are int not rgb, so to darken texture based on distance
+                                # we convert into to rgb, darken rgb, then convert back to int
+                                texture_color = wall_texture_grey.unmap_rgb(shared.wall_colors_textures_list[GREY_TEXTURE_STONEWALL][texture_x, y])                           
+                                texture_color = (texture_color[0] * color_brightness_normalized, texture_color[1] * color_brightness_normalized, texture_color[2] * color_brightness_normalized)
+                                texture_color = wall_texture_blue.map_rgb(texture_color)
+                            
                             if wall_color == BLUE_TEXTURE_WALL:
-                                texture_color =   shared.wall_colors_textures_list[BLUE_TEXTURE_WALL][texture_x, y]
+                                
+                                texture_color = wall_texture_blue.unmap_rgb(shared.wall_colors_textures_list[BLUE_TEXTURE_WALL][texture_x, y])                           
+                                texture_color = (texture_color[0] * color_brightness_normalized, texture_color[1] * color_brightness_normalized, texture_color[2] * color_brightness_normalized)
+                                texture_color = wall_texture_blue.map_rgb(texture_color)
+                                                                          
                             
                             # Paint the texture pixel on the thin slice surface
                             wall_slice_surface.set_at((0, y), texture_color)

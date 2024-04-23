@@ -26,3 +26,13 @@ wall_colors_textures_list = {
     RED_SOLID_WALL: RED,  
     WHITE_EMPTY_SPACE: WHITE,
 }
+
+
+# Initialize the audio mixer 
+pygame.mixer.init() 
+    
+# Create channels for multiple sounds(weapon, player, npc, level)
+weapon_channel = pygame.mixer.Channel(0)
+
+# Load shotgun sound
+shotgun_firing = pygame.mixer.Sound('assets/audio/fx/shotgun_firing.mp3')

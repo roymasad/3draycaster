@@ -1,0 +1,21 @@
+NPC Sprites TODO:
+
+-Use Separate drawing algo
+
+-Render AFTER raycasting walls are done
+
+-Keep 1D depth buffer for wall distances during raycasting
+
+-Give each sprite a height and ground level (shift) properties
+
+-Calculate sprite positions relative to the player position and view angle
+
+-Ignore/Cull sprites outside FOV
+
+-Sort back to front of sprite objects with FOV
+
+-Project sprite location from 2d map space to screen 2d space
+
+-Scale sprites based on distance (scale differently in X/Y, the sprites are not uniform like walls)
+
+-Render sprite textures per column to be occluded by any walls with higher 1d depth buffer

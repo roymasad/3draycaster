@@ -9,6 +9,13 @@ class WeaponState(enum.Enum):
     FIRING = 2
     RELOADING = 3
     
+class NPCState(enum.Enum):
+    IDLE = 1
+    WALKING = 1
+    HUNTING = 2
+    FIRING = 3
+    DEAD = 4
+    
 
 # Player class
 class Player:
@@ -88,6 +95,7 @@ class Shotgun(Weapon):
     def draw(self, screen):
                   
         texture_rect = self.current_sprite.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT - self.current_sprite.get_height()/2))
+        # This transparent blitting operation is very slow on Pygame, the bigger the area, the slower it is
         screen.blit(self.current_sprite, (texture_rect),area = None,special_flags=pygame.BLEND_ALPHA_SDL2)
         
     def fire(self):
@@ -95,6 +103,9 @@ class Shotgun(Weapon):
         
         self.timer = pygame.time.get_ticks() - FRAME_DELAY # this skips the delay in the update function
         self.frame = 0
+        
+        # Play shotgun sound
+        shared.weapon_channel.play(shared.shotgun_firing)
         
         # Not used, Schedule the reload timer event to trigger after some time 
         #pygame.time.set_timer(WEAPON_RELOAD_EVENT, 400 , 1)
@@ -152,9 +163,36 @@ class Shotgun(Weapon):
         
             # reset timer (after manual even was triggered)
             self.timer = pygame.time.get_ticks()
+              
+class NPC:
+    def __init__(self, x, y, radius, speed, view_angle, rotation_speed, health, damage, name, fire_rate, state, accuracy):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.speed = speed
+        self.view_angle = view_angle
+        self.rotation_speed = rotation_speed
+        self.health = health
+        self.damage = damage
+        self.name = name
+        self.fire_rate = fire_rate
+        self.state = state
+        self.accuracy = accuracy
+        self.spriteset = None
+        self.loadSpriteset()
         
-
+    def update(self):
+        pass
+    def draw(self):
+        pass
+    def fire(self):
+        pass
+    def die(self):
+        pass
+    def loadSpriteset(self):
+        pass
         
-        
-        
-        
+class ShotgunGuy(NPC):
+    def __init__(self, x, y, radius = 5, speed = 30, view_angle = 0, rotation_speed = 1, health = 20, damage = 10, name = "Shotgun Guy", fire_rate = 1, state = NPCState.IDLE, accuracy = 1):
+        super().__init__(x, y, radius, speed, view_angle, rotation_speed, health, damage, name, fire_rate, state, accuracy)
+  

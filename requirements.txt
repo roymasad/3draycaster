@@ -1,0 +1,4 @@
+llvmlite==0.42.0
+numpy==1.26.4
+pygame-ce==2.4.1
+termcolor==2.4.0

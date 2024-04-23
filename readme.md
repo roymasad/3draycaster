@@ -11,9 +11,25 @@ Python retro basic 3d Wolfenstein textured walls raycaster using DDA to optimize
 
 # Requirements
 
-* Python 3
+* Python 3.11
 * Pygame-ce (actually faster than pygame, still lacking tho in fps in blitting)
 * CPU faster than an intel 286 and more than 528k of conventional memory sadly ;(
+
+# Install
+
+python -m venv env
+
+-Windows
+env\Scripts\activate
+
+-MacOs
+source env/bin/activate
+
+pip install -r requirements.txt
+
+# Update requirements before push
+
+pip freeze > requirements.txt
 
 # Features
 
@@ -25,7 +41,7 @@ Python retro basic 3d Wolfenstein textured walls raycaster using DDA to optimize
 * Different types of walls
 * Wall collision
 * Sliding off walls support
-* Depth gradient for untextured walls
+* Depth gradient for textured and untextured walls
 * Toggle Horizontal/Vertical/Auto DDA scans for debugging/learning 
 * Pause/Unpause
 * FPS/Raycast Steps UI counters
@@ -34,19 +50,20 @@ Python retro basic 3d Wolfenstein textured walls raycaster using DDA to optimize
 * Mouse movement
 * Skybox
 * Weapons HUD, animation
+* Audio fx and background music
 
 # TODO
 
+* Switch from pygame to pyglet for faster/hardware sprite blitting
 * GUI with Score board
 * Textured Floor
 * Some floors with 'reflections'
-* Different ceiling heights?
+* Different ceiling/walls heights? (i know it was a BSP feature but maybe can be done in raycasting..)
 * Pickup Sprites (health, ammo, score)
 * Weapons attack logic
-* RNG Animated enemy Sprites+State Machine+Navigation with different sprite angles
+* Animated enemy Sprites+State Machine+Navigation with different sprite angles
 * Add pickups/Enemy spawns to level editor
 * Save/Load levels to/from external files
-* Audio fx and background music
 * Network deathmatch using Firebase realtime DB
 
 # Asset Credits
@@ -57,3 +74,5 @@ https://mekworx.the-powerhouse.net/meks-box-o-skies/
 Wall textures from original wolfenstein 3d
 
 Weapons and enemies from Brutal Doom pk3
+
+Background music and fx original doom (mp3 versions)
